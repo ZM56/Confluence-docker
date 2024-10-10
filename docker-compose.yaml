@@ -1,0 +1,39 @@
+version: '3.7'
+services:
+  confluence:
+    container_name: confluence
+    image: atlassian/confluence:9.0.3
+    restart: unless-stopped
+    ports:
+      - "80:8090"
+      - "8091:8091"
+    volumes:
+      - var:/var/atlassian/application-data/confluence
+      - opt:/opt/atlassian/confluence
+      - ./activate:/opt/atlassian/atlassian-agent/
+    environment:
+      - 'CONFLUENCE_DB_HOST=db'
+      - 'CONFLUENCE_DB_PORT=5432'
+      - 'CATALINA_OPTS=-Xms512M -Xmx1024M'
+      - 'CONFLUENCE_PROXY_NAME=confluence.domail.local'
+      - 'CONFLUENCE_PROXY_PORT=443'
+      - 'CONFLUENCE_PROXY_SCHEME=HTTPS'
+      - 'TZ=Europe/Moscow'
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: confluencedb
+      POSTGRES_PASSWORD: changeME # (Изменить на свой)
+      POSTGRES_DB: confluencedb
+      PGDATA: /data/postgres
+    volumes:
+       - ./postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+volumes:
+  var:
+    external: false
+  opt:
+    external: false
